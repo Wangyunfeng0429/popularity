@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+		<title>Taxi of Wuhan</title>
+
+		<link rel="stylesheet" href="https://js.arcgis.com/4.11/esri/css/main.css">
+		<script src="https://js.arcgis.com/4.11/"></script>
+		<style>
+			html,
+			body,
+			#viewDiv {
+				padding: 0;
+				margin: 0;
+				height: 100%;
+				width: 100%;
+			}
+		</style>
+		<script>
+			require([
+				"esri/Map",
+				"esri/views/MapView",
+				"esri/layers/CSVLayer",
+				"esri/widgets/Legend",
+				"esri/renderers/visualVariables/RotationVariable"
+			], function(Map, MapView, CSVLayer, Legend,RotationVariable) {
+
+				const url =
+					"https://cxqttkl.github.io/web4gis15/wuhangps-tiny.csv";
+
+
+				const rotationRenderer = {
+					type: "simple", // autocasts as new SimpleRenderer()
+					symbol: {
+						type: "simple-marker", // autocasts as new SimpleMarkerSymbol()
+						
+						// use an SVG path to create an arrow shape
+						path: "M14.5,29 23.5,0 14.5,9 5.5,0z",
+						color: "#5F9EA0",
+						outline: {
+							color: [0, 0, 0, 0.7],
+							width: 0
+						},
+						
+						angle: 180,
+						size: 15
+					},
+					visualVariables: [
+						{
+						type: "rotation", // indicates that symbols should be rotated based on value in field
+						field: "T_Heading", // field containing aspect values
+						rotationType: "geographic",	
+					},
+					{
+						type:"color",
+						field:"T_Speed",
+						stops: [{
+									value: 0,
+									color: "#FFD700",
+									label: "0km/h"
+								},
+								{
+									value: 8,
+									color: "#F0E68C",
+									label: "0-8.0"
+								},
+								{
+									value: 16,
+									color: "#FAFAD2",
+									label: "8.1-16.0"
+								},
+								{
+									value: 24,
+									color: "#ADFF2F",
+									label: "16.1-24.0"
+								},
+								{
+									value: 32,
+									color: "#98FB98",
+									label: "24.1-32.0"
+								},
+								{
+									value: 40,
+									color: "#3CB371",
+									label: "32.1-40"
+								}
+							]
+					}
+					]
+				};
+
+
+				var popupTemplate = {
+					title: "Taxi of Wuhan",
+					content: [{
+						type: "fields",
+						fieldInfos: [{
+								fieldName: "T_TargetID",
+								label: "ID"
+							},
+							{
+								fieldName: "T_Speed",
+								label: "Speed"
+							},
+							{
+								fieldName: "T_Heading",
+								label: "Heading"
+							}
+
+						]
+
+					}]
+				};
+
+
+				const layer = new CSVLayer({
+					url: url,
+					title: "Wuhan GPS in a day",
+					copyright: "Wuhan GPS",
+					popupTemplate:popupTemplate,
+					renderer: rotationRenderer
+				});
+
+				var map = new Map({
+					basemap: "topo-vector"
+
+				});
+
+				var view = new MapView({
+					container: "viewDiv",
+					map: map,
+					center: [114.3, 30.59],
+					zoom: 10
+				});
+
+				map.add(layer);
+
+				const legend = new Legend({
+					view: view
+				});
+
+				view.ui.add(legend, "bottom-left");
+
+
+			});
+		</script>
+
+	</head>
+	<body>
+		<div id="viewDiv"></div>
+	</body>
+</html>

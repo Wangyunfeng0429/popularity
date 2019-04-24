@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+		<title>people of China</title>
+		<style>
+			html,
+			body,
+			#viewDiv {
+				padding: 0;
+				margin: 0;
+				height: 100%;
+				width: 100%;
+			}
+		</style>
+
+		<link rel="stylesheet" href="https://js.arcgis.com/4.11/esri/css/main.css">
+		<script src="https://js.arcgis.com/4.11/"></script>
+
+		<script>
+			require([
+				"esri/Map",
+				"esri/views/MapView",
+				"esri/layers/GeoJSONLayer",
+				"esri/widgets/Legend"
+			], function(Map, MapView, GeoJSONLayer, Legend) {
+
+				/* const less35 = {type: "simple-fill", // autocasts as new SimpleFillSymbol()color: "#fffcd4",style: "solid",outline: {width: 0.2,color: [255, 255, 255, 0.5]}};
+
+								const less50 = {type: "simple-fill", // autocasts as new SimpleFillSymbol()color: "#b1cdc2",style: "solid",outline: {width: 0.2,color: [255, 255, 255, 0.5]}};const more50 = {type: "simple-fill", // autocasts as new SimpleFillSymbol()color: "#38627a",style: "solid",outline: {width: 0.2,color: [255, 255, 255, 0.5]}};const more75 = {type: "simple-fill", // autocasts as new SimpleFillSymbol()color: "#0d2644",style: "solid",outline: {width: 0.2,color: [255, 255, 255, 0.5]}}; */
+				const url = "https://wangyunfeng0429.github.io/popularity/chinawgs84.json";
+
+				const renderer = {
+					type: "class-breaks", // autocasts as new ClassBreaksRenderer()					
+					defaultSymbol: {
+						type: "simple-fill", // autocasts as new SimpleFillSymbol()
+						color: "#F08080",
+						//style: "backward-diagonal",
+						outline: {
+							width: 0.5,
+							color: [50, 50, 50, 0.6]
+						}
+					},
+					defaultLabel: "no data",
+					visualVariables: [{
+						type: "color",
+						field: "pop2000",
+						stops: [{
+								value: 40000,
+								color: "#EEE0E5"
+							},
+							{
+								value: 100000000,
+								color: "#8B475D"
+							}
+						]
+					}]
+					/* classBreakInfos: [{minValue: 0,maxValue: 10000000,symbol: less35,label: "1" // label for symbol in legend},{minValue: 10000001,maxValue: 30000000,symbol: less50,label: "2" // label for symbol in legend},{minValue: 30000001,maxValue: 60000000,symbol: more50,label: "3" // label for symbol in legend},{minValue: 60000001,maxValue: 100000000,symbol: more75,label: "4" // label for symbol in legend}] */
+				};
+
+				var popupTemplate = {
+					title: "popularity in {PROV}",
+					content: [{
+						type: "fields",
+						fieldInfos: [{
+								fieldName: "PROV",
+								label: "行政区"
+							},
+							{
+								fieldName: "pop2000",
+								label: "2000年人口"
+							},
+							{
+								fieldName: "Area_sqkm",
+								label: "面积"
+							},
+							{
+								fieldName: "popPerSqKm",
+								label: "人均面积"
+							}
+						]
+
+					}]
+				};
+
+				const geoJSONlayer = new GeoJSONLayer({
+					url: url,
+					renderer: renderer,
+					popupTemplate: popupTemplate
+
+
+				});
+
+				var map = new Map({
+					basemap: "topo-vector",
+					layers: [geoJSONlayer]
+				});
+
+				var view = new MapView({
+					container: "viewDiv",
+					map: map,
+					center: [104.21, 28.42],
+					zoom: 4
+				});
+
+				const legend = new Legend({
+					view: view
+				});
+
+				view.ui.add(legend, "bottom-left");
+
+				// map.add(geoJSONlayer);
+
+			});
+		</script>
+	</head>
+	<body>
+		<div id="viewDiv"></div>
+	</body>
+</html>
